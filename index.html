@@ -59,7 +59,6 @@
             color: #ffffff;
         }
 
-        /* Form Overlay */
         #formOverlay {
             display: none;
             position: fixed;
@@ -76,10 +75,9 @@
             background: #fff;
             padding: 30px;
             border-radius: 8px;
-            position: relative; /* Penting untuk posisi tombol close */
+            position: relative;
         }
 
-        /* Tombol Close Tepat di Ujung Form */
         .close-form-btn {
             position: absolute;
             top: 10px;
@@ -100,9 +98,6 @@
             z-index: 10;
         }
 
-        .close-form-btn:hover { background: #8e1f2f; }
-
-        /* Header Form */
         .header { display: flex; border: 2px solid #333; margin-bottom: 20px; margin-top: 20px; }
         .logo { width: 140px; border-right: 2px solid #333; text-align: center; padding: 15px; }
         .logo-text { font-size: 11px; font-weight: bold; margin-top: 5px; }
@@ -119,13 +114,11 @@
             width: 100%; border: 1px solid #ccc; padding: 8px; font-size: 14px; background: #fff;
         }
 
-        /* Tabel Styling */
         table { width: 100%; border-collapse: collapse; margin: 20px 0; table-layout: fixed; }
         th, td { border: 1px solid #333; padding: 10px; font-size: 13px; vertical-align: top; word-wrap: break-word; }
         th { background: #f0f0f0; text-align: center; }
         .center { text-align: center; }
 
-        /* Area Input Temuan (Tanpa Kotak) */
         .input-div {
             width: 100%;
             min-height: 25px;
@@ -163,8 +156,11 @@
         .btn-reset { background: #ffc107; color: #333; } 
         .btn-print { background: #007bbd; } 
 
+        /* Aturan Cetak (Media Print) */
         @media print {
-            .action-buttons, .upload-btn, input[type="file"], .close-form-btn, .input-div:empty:before { display: none !important; }
+            .action-buttons, .upload-btn, .close-form-btn, input[type="file"], .input-div:empty:before { 
+                display: none !important; 
+            }
             body { background: white !important; }
             #formOverlay { position: relative; display: block !important; background: white; padding: 0; overflow: visible; }
             .container { box-shadow: none; border: none; padding: 0; margin: 0; width: 100%; max-width: 100%; }
@@ -233,21 +229,14 @@
                     <td><div contenteditable="true" class="input-div" placeholder="Isi temuan..."></div></td>
                     <td><div contenteditable="true" class="input-div" placeholder="Isi perbaikan..."></div></td>
                     <td><div contenteditable="true" class="input-div" placeholder="..."></div></td>
-                    <td><input type="date" class="input-sync" style="border:none; padding:0;"></td>
+                    <td><input type="date" style="border:none; padding:0;"></td>
                 </tr>
                 <tr>
                     <td class="center">2</td>
                     <td><div contenteditable="true" class="input-div" placeholder="Isi temuan..."></div></td>
                     <td><div contenteditable="true" class="input-div" placeholder="Isi perbaikan..."></div></td>
                     <td><div contenteditable="true" class="input-div" placeholder="..."></div></td>
-                    <td><input type="date" class="input-sync" style="border:none; padding:0;"></td>
-                </tr>
-                <tr>
-                    <td class="center">3</td>
-                    <td><div contenteditable="true" class="input-div" placeholder="Isi temuan..."></div></td>
-                    <td><div contenteditable="true" class="input-div" placeholder="Isi perbaikan..."></div></td>
-                    <td><div contenteditable="true" class="input-div" placeholder="..."></div></td>
-                    <td><input type="date" class="input-sync" style="border:none; padding:0;"></td>
+                    <td><input type="date" style="border:none; padding:0;"></td>
                 </tr>
             </tbody>
         </table>
@@ -260,7 +249,6 @@
 </div>
 
 <script>
-    // Library Data (Tetap sama seperti sebelumnya)
     const inspectionLibrary = {
         'Container T': ["Container bersih & rapi", "Struktur baik", "Pintu berfungsi", "Lantai kering", "Blower berfungsi", "Penataan rapi", "Kemasan tidak bocor", "Spill kit ada", "Container dikunci", "Safety Shower ok", "APAR ok", "Sign B3 ok", "MSDS ok", "Penerangan cukup"],
         'Container S': ["Container bersih & rapi", "Struktur baik", "Pintu berfungsi", "Lantai kering", "AC berfungsi", "Penataan rapi", "Kemasan tidak bocor", "Spill kit ada", "Container dikunci", "Safety Shower ok", "APAR ok", "Sign B3 ok", "MSDS ok", "Penerangan cukup"],
@@ -319,7 +307,7 @@
                 <td>
                     <b>${item}</b><br>
                     <input type="file" id="f${i}" hidden accept="image/*" onchange="handleImage(${i})">
-                    <button class="upload-btn" onclick="document.getElementById('f${i}').click()">📷 Foto</button>
+                    <button class="upload-btn" id="btn-upload-${i}" onclick="document.getElementById('f${i}').click()">📷 Foto</button>
                     <img class="photo-preview" id="img${i}">
                 </td>
                 <td class="center"><input type="radio" name="r${i}"></td>
@@ -328,12 +316,18 @@
         `).join('');
     }
 
+    // REVISI: Sembunyikan tulisan/tombol foto setelah upload
     function handleImage(i) {
         const file = document.getElementById("f"+i).files[0];
         const img = document.getElementById("img"+i);
+        const btnUpload = document.getElementById("btn-upload-"+i);
         if (file) {
             const reader = new FileReader();
-            reader.onload = e => { img.src = e.target.result; img.style.display = "block"; };
+            reader.onload = e => { 
+                img.src = e.target.result; 
+                img.style.display = "block"; 
+                btnUpload.style.display = "none"; // Hilangkan tombol foto setelah upload
+            };
             reader.readAsDataURL(file);
         }
     }
@@ -346,8 +340,16 @@
         }
     }
 
+    // REVISI: Sembunyikan tombol aksi saat proses export PDF
     function exportPDF() {
         const element = document.getElementById('printableArea');
+        const actionBtns = document.querySelector('.action-buttons');
+        const closeBtn = document.querySelector('.close-form-btn');
+
+        // Sembunyikan manual sebelum capture
+        actionBtns.style.display = 'none';
+        closeBtn.style.display = 'none';
+
         const opt = {
             margin: [10, 10, 10, 10],
             filename: `Inspection_${currentArea.replace(/\s+/g, '_')}.pdf`,
@@ -356,7 +358,12 @@
             jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
             pagebreak: { mode: 'avoid-all' }
         };
-        html2pdf().set(opt).from(element).save();
+
+        html2pdf().set(opt).from(element).save().then(() => {
+            // Tampilkan kembali setelah selesai
+            actionBtns.style.display = 'flex';
+            closeBtn.style.display = 'flex';
+        });
     }
 </script>
 </body>
